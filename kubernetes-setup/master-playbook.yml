@@ -1,0 +1,5 @@
+---
+- import_playbook: install_master_reqs.yml
+- import_playbook: install_docker.yml
+- import_playbook: install_kube_packages.yml
+- import_playbook: master_join.yml
