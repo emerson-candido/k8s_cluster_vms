@@ -1,0 +1,4 @@
+---
+- name: Install GlusterFS
+  ansible.builtin.debug:
+    msg: "test"

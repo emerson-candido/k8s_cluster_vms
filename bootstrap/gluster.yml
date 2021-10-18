@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: GlusterFS
+    include_role:
+      name: bootstrap
+      tasks_from: gluster
