@@ -1,0 +1,24 @@
+---
+- hosts: "{{ node_prefix }}-{{ node_count }}"
+  become: true
+  gather_facts: yes
+  tasks:
+  - name: Install Master Reqs
+    include_role:
+      name: master
+      tasks_from: install_prereqs
+  
+  - name: Install CRI
+    include_role:
+      name: master_and_workers
+      tasks_from: install_cri
+  
+  - name: Install Kube Packages
+    include_role:
+      name: master_and_workers
+      tasks_from: install_kube_packages
+  
+  - name: Master Join
+    include_role:
+      name: master
+      tasks_from: master_join

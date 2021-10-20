@@ -1,8 +1,24 @@
 ---
-- hosts: all
+- hosts: "{{ node_prefix }}-{{ node_count }}"
   become: true
+  gather_facts: no
   tasks:
-  - name: GlusterFS
+  - name: Install Gluster
     include_role:
-      name: bootstrap
-      tasks_from: gluster
+      name: gluster
+      tasks_from: install
+  
+  - name: Add Node Peers
+    include_role:
+      name: gluster
+      tasks_from: add_node_peers
+
+  - name: Add LVM Volumes
+    include_role:
+      name: gluster
+      tasks_from: add_lvm_volumes
+
+  - name: Add Volumes
+    include_role:
+      name: gluster
+      tasks_from: add_volumes

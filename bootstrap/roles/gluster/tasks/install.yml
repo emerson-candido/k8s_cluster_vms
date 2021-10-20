@@ -1,0 +1,28 @@
+---
+- name: Add an apt signing key for Gluster repository
+  ansible.builtin.apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: F7C73FCC930AC9F83B387A5613E01B7B3FE869A9
+    state: present
+
+- name: Add GlusterFS Repository
+  ansible.builtin.apt_repository:
+    repo: deb http://ppa.launchpad.net/gluster/glusterfs-7/ubuntu xenial main
+    state: present
+
+- name: Install gluster packages
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - software-properties-common
+    - glusterfs-client
+    - glusterfs-server
+
+- name: Enable and start glusterd service
+  ansible.builtin.service:
+    name: glusterd
+    state: started
+    enabled: yes
