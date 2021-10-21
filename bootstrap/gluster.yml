@@ -15,7 +15,7 @@
 
   - name: Add LVM Volumes
     include_role:
-      name: gluster
+      name: lvm
       tasks_from: add_lvm_volumes
 
   - name: Add Volumes

@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: glusterfs-cluster
+subsets:
+  - addresses:
+      - ip: 10.130.144.41
+    ports:
+      - port: 1
+  - addresses:
+      - ip: 10.130.144.40
+    ports:
+      - port: 1
+  - addresses:
+      - ip: 10.130.144.39
+    ports:
+      - port: 1
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: glusterfs-cluster
+spec:
+  ports:
+  - port: 1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tv-dev-registry-registry
+  namespace: tv-dev-registry
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  glusterfs:
+    endpoints: glusterfs-cluster
+    path: tv-dev-registry_registry
+    readOnly: false
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry
+spec:
+  accessModes:
+  - ReadWriteMany      
+  resources:
+     requests:
+       storage: 1Gi

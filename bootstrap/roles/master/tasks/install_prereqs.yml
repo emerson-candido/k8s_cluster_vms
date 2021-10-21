@@ -1,6 +1,6 @@
 ---
 - name: Install Prereq packages for a Master node
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes

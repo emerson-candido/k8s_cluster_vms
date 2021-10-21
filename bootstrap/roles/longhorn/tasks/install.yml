@@ -1,0 +1,22 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - open-iscsi
+    - nfs-common
+
+- name: Install Longhorn (Run only on last node)
+  become: false
+  command: kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.2/deploy/longhorn.yaml
+  delegate_to: "localhost"
+  when: node_numbers == node_count
+
+- name: Expose Longhorn UI via NodePort
+  become: false
+  command: kubectl apply -f {{ playbook_dir }}/roles/longhorn/files/service-nodeport.yml
+  delegate_to: "localhost"
+  when: node_numbers == node_count

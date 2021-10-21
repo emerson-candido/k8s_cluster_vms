@@ -17,3 +17,16 @@
     include_role:
       name: worker
       tasks_from: worker_join
+
+  - name: Install Longhorn
+    block:
+    - name: Add LVM Volumes
+      include_role:
+        name: lvm
+        tasks_from: add_lvm_volumes
+
+    - name: Install Longhorn
+      include_role:
+        name: longhorn
+        tasks_from: install
+    when: longhorn_deploy == "yes"

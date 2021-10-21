@@ -30,7 +30,7 @@
 
 - name: Mounting new filesystem
   ansible.posix.mount:
-    path: "{{ gluster_directory }}"
+    path: "{{ disk_directory }}"
     src: /dev/{{ disk_name }}/{{ disk_name }}-{{ disk_device }}
     fstype: "{{ disk_fs }}"
     state: mounted
