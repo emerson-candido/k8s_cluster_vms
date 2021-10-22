@@ -1,11 +1,11 @@
 ---
 - name: Add an apt signing key for Docker
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
 - name: Add apt repository for stable version
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     state: present
 
@@ -21,7 +21,7 @@
     dest: /etc/docker/daemon.json
 
 - name: Install docker and its dependecies
-  apt:
+  ansible.builtin.apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
@@ -32,11 +32,11 @@
     - containerd.io
 
 - name: docker status
-  service: 
+  ansible.builtin.service: 
     name: docker
     state: started
 
 - name: Add vagrant user to docker group
-  user:
+  ansible.builtin.user:
     name: vagrant
     group: docker

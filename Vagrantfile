@@ -1,4 +1,3 @@
-ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 # Common variables
 BOOTSTRAP_PATH = "bootstrap"
 CPU            = "2"
@@ -46,7 +45,7 @@ Vagrant.configure("2") do |config|
         libvirt.memory = MEMORY
         libvirt.cpus = CPU
         libvirt.driver = "kvm"
-        libvirt.storage :file, :size => "#{DISK_SIZE}"
+        libvirt.storage :file, :size => "#{DISK_SIZE}G"
     end
       
     # Master nodes
@@ -71,57 +70,58 @@ Vagrant.configure("2") do |config|
     end
 
     ## Worker nodes
-    #(1..WORKER_NODES).each do |i|
-    #    config.vm.define "#{WORKER_PREFIX}-#{i}" do |worker|
-    #        worker.vm.box = IMAGE_NAME
-    #        worker.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + 20}"
-    #        worker.vm.hostname = "#{WORKER_PREFIX}-#{i}"
-    #        worker.vm.provision "ansible" do |ansible|
-    #            ansible.playbook = "#{BOOTSTRAP_PATH}/#{WORKER_PREFIX}.yml"
-    #            ansible.extra_vars = {
-    #                disk_device: "#{DISK_DEVICE}",
-    #                disk_directory: "#{LONGHORN_DIRECTORY}",
-    #                disk_fs: "#{DISK_FS}",
-    #                disk_name: "#{DISK_NAME}",
-    #                disk_size: "#{DISK_SIZE}",
-    #                longhorn_deploy: "#{LONGHORN_DEPLOY}",
-    #                node_count: "#{i}",
-    #                master_ip: "#{SUBNET}.11",
-    #                node_ip: "#{SUBNET}.#{i + 20}",
-    #                node_numbers: "#{WORKER_NODES}",
-    #                node_prefix: "#{WORKER_PREFIX}",
-    #                node_range: "#{WORKER_RANGE}",
-    #                node_subnet: "#{SUBNET}",
-    #            }
-    #        end
-    #    end
-    #end
+    (1..WORKER_NODES).each do |i|
+        config.vm.define "#{WORKER_PREFIX}-#{i}" do |worker|
+            worker.vm.box = IMAGE_NAME
+            worker.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + 20}"
+            worker.vm.hostname = "#{WORKER_PREFIX}-#{i}"
+            worker.vm.provision "ansible" do |ansible|
+                ansible.playbook = "#{BOOTSTRAP_PATH}/#{WORKER_PREFIX}.yml"
+                ansible.extra_vars = {
+                    disk_device: "#{DISK_DEVICE}",
+                    disk_directory: "#{LONGHORN_DIRECTORY}",
+                    disk_fs: "#{DISK_FS}",
+                    disk_name: "#{DISK_NAME}",
+                    disk_size: "#{DISK_SIZE}",
+                    gluster_deploy: "#{GLUSTER_DEPLOY}",
+                    longhorn_deploy: "#{LONGHORN_DEPLOY}",
+                    node_count: "#{i}",
+                    master_ip: "#{SUBNET}.11",
+                    node_ip: "#{SUBNET}.#{i + 20}",
+                    node_numbers: "#{WORKER_NODES}",
+                    node_prefix: "#{WORKER_PREFIX}",
+                    node_range: "#{WORKER_RANGE}",
+                    node_subnet: "#{SUBNET}",
+                }
+            end
+        end
+    end
 
-    ### Storage GlusterFS
-    #if GLUSTER_DEPLOY == "yes"
-    #    (1..GLUSTER_NODES).each do |i|
-    #        config.vm.define "#{GLUSTER_PREFIX}-#{i}" do |gluster|
-    #            gluster.vm.box = IMAGE_NAME
-    #            gluster.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + 30}"
-    #            gluster.vm.hostname = "#{GLUSTER_PREFIX}-#{i}"
-    #            gluster.vm.provision "ansible" do |ansible|
-    #                ansible.playbook = "#{BOOTSTRAP_PATH}/#{GLUSTER_PREFIX}.yml"
-    #                ansible.extra_vars = {
-    #                    disk_device: "#{DISK_DEVICE}",
-    #                    disk_directory: "#{GLUSTER_DIRECTORY}",
-    #                    disk_fs: "#{DISK_FS}",
-    #                    disk_name: "#{DISK_NAME}",
-    #                    disk_size: "#{DISK_SIZE}",
-    #                    gluster_directory: "#{GLUSTER_DIRECTORY}",
-    #                    node_count: "#{i}",
-    #                    node_ip: "#{SUBNET}.#{i + 30}",
-    #                    node_numbers: "#{GLUSTER_NODES}",
-    #                    node_prefix: "#{GLUSTER_PREFIX}",
-    #                    node_range: "#{GLUSTER_RANGE}",
-    #                    node_subnet: "#{SUBNET}",
-    #                }
-    #            end
-    #        end
-    #    end
-    #end
+    # Storage GlusterFS
+    if GLUSTER_DEPLOY == "yes"
+        (1..GLUSTER_NODES).each do |i|
+            config.vm.define "#{GLUSTER_PREFIX}-#{i}" do |gluster|
+                gluster.vm.box = IMAGE_NAME
+                gluster.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + 30}"
+                gluster.vm.hostname = "#{GLUSTER_PREFIX}-#{i}"
+                gluster.vm.provision "ansible" do |ansible|
+                    ansible.playbook = "#{BOOTSTRAP_PATH}/#{GLUSTER_PREFIX}.yml"
+                    ansible.extra_vars = {
+                        disk_device: "#{DISK_DEVICE}",
+                        disk_directory: "#{GLUSTER_DIRECTORY}",
+                        disk_fs: "#{DISK_FS}",
+                        disk_name: "#{DISK_NAME}",
+                        disk_size: "#{DISK_SIZE}",
+                        gluster_directory: "#{GLUSTER_DIRECTORY}",
+                        node_count: "#{i}",
+                        node_ip: "#{SUBNET}.#{i + 30}",
+                        node_numbers: "#{GLUSTER_NODES}",
+                        node_prefix: "#{GLUSTER_PREFIX}",
+                        node_range: "#{GLUSTER_RANGE}",
+                        node_subnet: "#{SUBNET}",
+                    }
+                end
+            end
+        end
+    end
 end

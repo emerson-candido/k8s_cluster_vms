@@ -19,6 +19,7 @@
         a=`expr $a + 1`
       done
       gluster volume create {{ item.split('/')[-1] }} replica {{ node_numbers }} $(cat volumes_{{ item.split('/')[-1] }}.txt)
+      gluster volume start {{ item.split('/')[-1] }}
   with_items:
   - "{{ gluster_directory }}/pv01"
   - "{{ gluster_directory }}/pv02"

@@ -18,6 +18,12 @@
       name: worker
       tasks_from: worker_join
 
+  - name: Install glusterfs-packages
+    include_role:
+      name: gluster
+      tasks_from: install_gluster-packages
+    when: gluster_deploy == "yes"
+
   - name: Install Longhorn
     block:
     - name: Add LVM Volumes

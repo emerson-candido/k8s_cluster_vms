@@ -5,5 +5,6 @@
     dest: /tmp/token_worker_join.sh 
     mode: 0777
 
-#- name: Join the worker join token to cluster
-#  command: sh /tmp/token_worker_join.sh
+- name: Join the worker join token to cluster
+  command: sh /tmp/token_worker_join.sh
+  run_once: true
