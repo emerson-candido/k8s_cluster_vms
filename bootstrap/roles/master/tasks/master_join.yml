@@ -1,34 +1,42 @@
 ---
-- name: Initialize the Kubernetes cluster using kubeadm
-  command: |
-    kubeadm init \
-      --apiserver-advertise-address="{{ node_ip }}" \
-      --apiserver-cert-extra-sans="{{ node_ip }}" \
-      --node-name {{ node_prefix }}-{{ node_count }} \
-      --pod-network-cidr={{ pod_cidr }} \
-      --service-cidr={{ svc_cidr }}
+- name: Check if cluster is initialized
+  command: kubectl --kubeconfig /etc/kubernetes/admin.conf cluster-info
+  register: clusterinfo
+  ignore_errors: yes
 
-- name: Setup kubeconfig for vagrant user
-  command: "{{ item }}"
-  with_items:
-    - mkdir -p /home/vagrant/.kube
-    - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-    - chown vagrant:vagrant /home/vagrant/.kube/config
+- name: Initialize Kubernetes
+  block: 
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: |
+      kubeadm init \
+        --apiserver-advertise-address="{{ node_ip }}" \
+        --apiserver-cert-extra-sans="{{ node_ip }}" \
+        --node-name {{ node_prefix }}-{{ node_count }} \
+        --pod-network-cidr={{ pod_cidr }} \
+        --service-cidr={{ svc_cidr }}
 
-- name: Install calico pod network
-  become: false
-  command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+  - name: Setup kubeconfig for vagrant user
+    command: "{{ item }}"
+    with_items:
+      - mkdir -p /home/vagrant/.kube
+      - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+      - chown vagrant:vagrant /home/vagrant/.kube/config
 
-- name: Generate worker join token
-  command: kubeadm token create --print-join-command
-  register: token_worker_join
+  - name: Install calico pod network
+    become: false
+    command: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 
-- name: Copy worker join token to a local file
-  local_action: copy content="{{ token_worker_join.stdout_lines[0] }}" dest="./token_worker_join"
-  become: false
+  - name: Generate worker join token
+    command: kubeadm token create --print-join-command
+    register: token_worker_join
 
-- name: Copy .kube/config file
-  ansible.builtin.fetch:
-    src: "/etc/kubernetes/admin.conf"
-    dest: "~/.kube/config"
-    flat: yes
+  - name: Copy worker join token to a local file
+    local_action: copy content="{{ token_worker_join.stdout_lines[0] }}" dest="./token_worker_join"
+    become: false
+
+  - name: Copy .kube/config file
+    ansible.builtin.fetch:
+      src: "/etc/kubernetes/admin.conf"
+      dest: "~/.kube/config"
+      flat: yes
+  when: clusterinfo.failed == true

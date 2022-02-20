@@ -1,42 +1,49 @@
 ---
-- name: Add an apt signing key for Docker
-  ansible.builtin.apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add apt repository for stable version
-  ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-    state: present
-
-- name: Create /etc/docker directory
-  ansible.builtin.file:
-    path: /etc/docker
-    state: directory
-    mode: '0755'
-
-- name: Copy docker daemon.json file
-  ansible.builtin.copy:
-    src: files/docker_daemon.json
-    dest: /etc/docker/daemon.json
-
-- name: Install docker and its dependecies
+- name: Install container-d
   ansible.builtin.apt:
     name: "{{ packages }}"
     state: present
     update_cache: yes
   vars:
     packages:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
+    - containerd={{ version_cri }}
 
-- name: docker status
+- name: Copy container-d containerd.conf file
+  ansible.builtin.copy:
+    src: files/container-d/containerd.conf
+    dest: /etc/modules-load.d/containerd.conf
+  register: modules
+
+- name: Load the modules overlay and br_netfilter
+  shell: modprobe overlay && modprobe br_netfilter
+  become: yes
+  when: modules.changed
+
+- name: Copy container-d 99-kubernetes-cri.conf file
+  ansible.builtin.copy:
+    src: files/container-d/99-kubernetes-cri.conf
+    dest: /etc/sysctl.d/99-kubernetes-cri.conf
+  register: sysctl
+
+- name: Reload sysctl
+  shell: sysctl --system
+  become: yes
+  when: sysctl.changed
+
+- name: Create /etc/containerd directory
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Copy container-d config.toml file
+  ansible.builtin.copy:
+    src: files/container-d/config.toml
+    dest: /etc/containerd/config.toml
+  register: containerd
+
+- name: Restart containerd service
   ansible.builtin.service: 
-    name: docker
-    state: started
-
-- name: Add vagrant user to docker group
-  ansible.builtin.user:
-    name: vagrant
-    group: docker
+    name: containerd
+    state: restarted
+  when: containerd.changed

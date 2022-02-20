@@ -4,6 +4,10 @@ CPU            = "2"
 IMAGE_NAME     = "generic/ubuntu1604"
 MEMORY         = "2048"
 
+# Versions
+VERSION_KUBE = "1.23.4-00"
+VERSION_CRI  = "1.2.6-0ubuntu1~16.04.6"
+
 # Disks
 DISK_DEVICE = "vdb"
 DISK_FS     = "ext4"
@@ -11,7 +15,7 @@ DISK_NAME   = "data"
 DISK_SIZE   = "20"
 
 # Gluster variables
-GLUSTER_DEPLOY    = "yes"
+GLUSTER_DEPLOY    = "no"
 GLUSTER_DIRECTORY = "/data"
 GLUSTER_NODES     = 3
 GLUSTER_PREFIX    = "gluster"
@@ -64,12 +68,14 @@ Vagrant.configure("2") do |config|
                     node_subnet: "#{SUBNET}",
                     pod_cidr: "#{POD_CIDR}",
                     svc_cidr: "#{SVC_CIDR}",
+                    version_kube: "#{VERSION_KUBE}",
+                    version_cri: "#{VERSION_CRI}",
                 }
             end
         end
     end
 
-    ## Worker nodes
+    # Worker nodes
     (1..WORKER_NODES).each do |i|
         config.vm.define "#{WORKER_PREFIX}-#{i}" do |worker|
             worker.vm.box = IMAGE_NAME
@@ -92,12 +98,14 @@ Vagrant.configure("2") do |config|
                     node_prefix: "#{WORKER_PREFIX}",
                     node_range: "#{WORKER_RANGE}",
                     node_subnet: "#{SUBNET}",
+                    version_kube: "#{VERSION_KUBE}",
+                    version_cri: "#{VERSION_CRI}",
                 }
             end
         end
     end
 
-    # Storage GlusterFS
+    ## Storage GlusterFS
     if GLUSTER_DEPLOY == "yes"
         (1..GLUSTER_NODES).each do |i|
             config.vm.define "#{GLUSTER_PREFIX}-#{i}" do |gluster|

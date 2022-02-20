@@ -30,9 +30,9 @@
     update_cache: yes
   vars:
     packages:
-      - kubelet
-      - kubeadm
-      - kubectl
+      - kubelet={{ version_kube }}
+      - kubeadm={{ version_kube }}
+      - kubectl={{ version_kube }}
 
 - name: Configure node ip and cgroup-driver
   lineinfile:
