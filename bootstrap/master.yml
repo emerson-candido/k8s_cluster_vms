@@ -22,3 +22,23 @@
     include_role:
       name: master
       tasks_from: master_join
+
+  - name: No Worker nodes tasks
+    block:  
+    - name: Allow master nodes to run pods
+      include_role:
+        name: master
+        tasks_from: master_runpods
+    - name: Install Longhorn
+      block:
+      - name: Add LVM Volumes
+        include_role:
+          name: lvm
+          tasks_from: add_lvm_volumes
+
+      - name: Install Longhorn
+        include_role:
+          name: longhorn
+          tasks_from: install
+      when: longhorn_deploy == "yes"
+    when: worker_nodes == "0"

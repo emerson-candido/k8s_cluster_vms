@@ -1,0 +1,11 @@
+prometheus:
+  alertmanager:
+    enabled: false
+  server:
+    persistentVolume:
+      storageClass: longhorn
+    service:
+      type: NodePort
+      nodePort: 30008
+  pushgateway:
+    enabled: false

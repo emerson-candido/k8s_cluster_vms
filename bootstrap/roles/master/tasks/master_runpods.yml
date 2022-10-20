@@ -1,0 +1,4 @@
+---
+- name: Allow master nodes to run pods
+  become: false
+  command: kubectl taint node {{ node_prefix }}-{{ node_count }} node-role.kubernetes.io/master:NoSchedule-
