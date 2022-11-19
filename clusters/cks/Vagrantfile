@@ -1,0 +1,129 @@
+# Common variables
+BOOTSTRAP_PATH  = "bootstrap"
+PROVIDER        = "libvirt"
+PROVIDER_DRIVER = "kvm"
+
+# Disks
+DISK_DEVICE = "vdb"
+DISK_FS     = "ext4"
+DISK_NAME   = "data"
+DISK_SIZE   = "20"
+
+# Network variables
+NETWORK  = "private_network"
+SUBNET   = "192.168.50"
+
+# Kubernetes variables
+VERSION_CRI  = "1.2.6-0ubuntu1~16.04.6+esm1"
+VERSION_KUBE = "1.23.4-00"
+
+# Master variables
+MASTER_CIDR_POD = "10.244.0.0/16"
+MASTER_CIDR_SVC = "10.96.0.0/16"
+MASTER_CPU      = "4"
+MASTER_IMAGE    = "generic/ubuntu1604"
+MASTER_MEMORY   = "4096"
+MASTER_NODES    = 1
+MASTER_PREFIX   = "master"
+MASTER_RANGE    = 10
+
+# Worker variables
+WORKER_CPU    = "4"
+WORKER_IMAGE  = "generic/ubuntu1604"
+WORKER_MEMORY = "2048"
+WORKER_NODES  = 0
+WORKER_PREFIX = "worker"
+WORKER_RANGE  = 20
+
+# Longhorn variables
+LONGHORN_DEPLOY    = "yes"
+LONGHORN_DIRECTORY = "/var/lib/longhorn"
+
+# Monitoring variables
+MONITORING_DEPLOY = "yes"
+KUBE_PROMETHEUS_STACK_CHART_VERSION = "41.9.0"
+PUSHGATEWAY_CHART_VERSION = "1.20.1"
+
+# Vagrant deployment
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+
+    # Provider settings
+    config.vm.provider :"#{PROVIDER}" do |provider|
+        provider.driver = "#{PROVIDER_DRIVER}"
+        provider.storage :file, :size => "#{DISK_SIZE}G"
+    end
+      
+    # Master nodes
+    (1..MASTER_NODES).each do |i|
+        config.vm.define "#{MASTER_PREFIX}-#{i}" do |master|
+            master.vm.box = MASTER_IMAGE
+            master.vm.hostname = "#{MASTER_PREFIX}-#{i}"
+            master.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + MASTER_RANGE}"
+            master.vm.provider :"#{PROVIDER}" do |provider|
+                provider.cpus = MASTER_CPU
+                provider.memory = MASTER_MEMORY
+                end
+            master.vm.provision "ansible" do |ansible|
+                ansible.playbook = "../../#{BOOTSTRAP_PATH}/#{MASTER_PREFIX}.yml"
+                ansible.extra_vars = {
+                    disk_device: "#{DISK_DEVICE}",
+                    disk_directory: "#{LONGHORN_DIRECTORY}",
+                    disk_fs: "#{DISK_FS}",
+                    disk_name: "#{DISK_NAME}",
+                    disk_size: "#{DISK_SIZE}",
+                    kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",
+                    longhorn_deploy: "#{LONGHORN_DEPLOY}",
+                    monitoring_deploy: "#{MONITORING_DEPLOY}",
+                    node_count: "#{i}",
+                    node_ip: "#{SUBNET}.#{i + MASTER_RANGE}",
+                    node_numbers: "#{MASTER_NODES}",
+                    node_prefix: "#{MASTER_PREFIX}",
+                    node_range: "#{MASTER_RANGE}",
+                    node_subnet: "#{SUBNET}",
+                    pod_cidr: "#{MASTER_CIDR_POD}",
+                    pushgateway_chart_version: "#{PUSHGATEWAY_CHART_VERSION}",
+                    svc_cidr: "#{MASTER_CIDR_SVC}",
+                    version_kube: "#{VERSION_KUBE}",
+                    version_cri: "#{VERSION_CRI}",
+                    worker_nodes: "#{WORKER_NODES}",
+                }
+            end
+        end
+    end
+
+    # Worker nodes
+    (1..WORKER_NODES).each do |i|
+        config.vm.define "#{WORKER_PREFIX}-#{i}" do |worker|
+            worker.vm.box = WORKER_IMAGE
+            worker.vm.hostname = "#{WORKER_PREFIX}-#{i}"
+            worker.vm.network "#{NETWORK}", ip: "#{SUBNET}.#{i + WORKER_RANGE}"
+            worker.vm.provider :"#{PROVIDER}" do |provider|
+                provider.cpus = WORKER_CPU
+                provider.memory = WORKER_MEMORY
+                end
+            worker.vm.provision "ansible" do |ansible|
+                ansible.playbook = "../../#{BOOTSTRAP_PATH}/#{WORKER_PREFIX}.yml"
+                ansible.extra_vars = {
+                    disk_device: "#{DISK_DEVICE}",
+                    disk_directory: "#{LONGHORN_DIRECTORY}",
+                    disk_fs: "#{DISK_FS}",
+                    disk_name: "#{DISK_NAME}",
+                    disk_size: "#{DISK_SIZE}",
+                    longhorn_deploy: "#{LONGHORN_DEPLOY}",
+                    monitoring_deploy: "#{MONITORING_DEPLOY}",
+                    kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",
+                    node_count: "#{i}",
+                    node_ip: "#{SUBNET}.#{i + WORKER_RANGE}",
+                    node_numbers: "#{WORKER_NODES}",
+                    node_prefix: "#{WORKER_PREFIX}",
+                    node_range: "#{WORKER_RANGE}",
+                    node_subnet: "#{SUBNET}",
+                    pushgateway_chart_version: "#{PUSHGATEWAY_CHART_VERSION}",
+                    version_kube: "#{VERSION_KUBE}",
+                    version_cri: "#{VERSION_CRI}",
+                }
+            end
+        end
+    end
+end
