@@ -10,19 +10,34 @@
     values:
       alertmanager:
         enabled: true
-        service:
-          type: NodePort
-          nodePort: 30009
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: nginx
+            nginx.ingress.kubernetes.io/rewrite-target: /$2
+          paths: ['/alertmanager(/|$)(.*)']
       grafana:
         enabled: true
-        service:
-          type: NodePort
-          nodePort: 30010
+        env:
+          GF_SERVER_ROOT_URL: /grafana
+          GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: nginx
+            nginx.ingress.kubernetes.io/rewrite-target: /$2
+          path: "/grafana(/|$)(.*)"
+          pathType: Prefix
       prometheus:
         enabled: true
-        service:
-          type: NodePort
-          nodePort: 30008
+        ingress:
+          enabled: true
+          paths: ['/prometheus']
+          pathType: Prefix
+          annotations:
+            kubernetes.io/ingress.class: nginx
+        prometheusSpec:
+          routePrefix: '/prometheus/'
+          externalUrl: 'http://0.0.0.0:30080/prometheus/'
   become: false
   delegate_to: "localhost"
-  when: node_numbers == node_count

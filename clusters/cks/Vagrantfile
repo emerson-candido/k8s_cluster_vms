@@ -12,6 +12,7 @@ DISK_SIZE   = "20"
 # Network variables
 NETWORK  = "private_network"
 SUBNET   = "192.168.50"
+DOMAIN   = "cks.k8s"
 
 # Kubernetes variables
 VERSION_CRI  = "1.2.6-0ubuntu1~16.04.6+esm1"
@@ -20,29 +21,43 @@ VERSION_KUBE = "1.23.4-00"
 # Master variables
 MASTER_CIDR_POD = "10.244.0.0/16"
 MASTER_CIDR_SVC = "10.96.0.0/16"
-MASTER_CPU      = "4"
+MASTER_CPU      = "6"
 MASTER_IMAGE    = "generic/ubuntu1604"
-MASTER_MEMORY   = "4096"
+MASTER_MEMORY   = "5120"
 MASTER_NODES    = 1
 MASTER_PREFIX   = "master"
 MASTER_RANGE    = 10
 
 # Worker variables
-WORKER_CPU    = "4"
+WORKER_CPU    = "6"
 WORKER_IMAGE  = "generic/ubuntu1604"
-WORKER_MEMORY = "2048"
+WORKER_MEMORY = "3072"
 WORKER_NODES  = 0
 WORKER_PREFIX = "worker"
 WORKER_RANGE  = 20
+
+# APPs variables
+##############################
+# Cert-Manager variables
+CERT_MANAGER_DEPLOY        = "yes"
+CERT_MANAGER_CHART_VERSION = "v1.10.0"
+
+# Gatekeeper variables
+GATEKEEPER_DEPLOY        = "yes"
+GATEKEEPER_CHART_VERSION = "3.10.0"
+
+# Ingress variables
+INGRESS_DEPLOY        = "yes"
+INGRESS_CHART_VERSION = "4.4.0"
 
 # Longhorn variables
 LONGHORN_DEPLOY    = "yes"
 LONGHORN_DIRECTORY = "/var/lib/longhorn"
 
 # Monitoring variables
-MONITORING_DEPLOY = "yes"
+MONITORING_DEPLOY                   = "yes"
 KUBE_PROMETHEUS_STACK_CHART_VERSION = "41.9.0"
-PUSHGATEWAY_CHART_VERSION = "1.20.1"
+PUSHGATEWAY_CHART_VERSION           = "1.20.1"
 
 # Vagrant deployment
 Vagrant.configure("2") do |config|
@@ -66,12 +81,20 @@ Vagrant.configure("2") do |config|
                 end
             master.vm.provision "ansible" do |ansible|
                 ansible.playbook = "../../#{BOOTSTRAP_PATH}/#{MASTER_PREFIX}.yml"
+                ansible.ask_become_pass = true
                 ansible.extra_vars = {
+                    cert_manager_chart_version: "#{CERT_MANAGER_CHART_VERSION}",
+                    cert_manager_deploy: "#{CERT_MANAGER_DEPLOY}",
                     disk_device: "#{DISK_DEVICE}",
                     disk_directory: "#{LONGHORN_DIRECTORY}",
                     disk_fs: "#{DISK_FS}",
                     disk_name: "#{DISK_NAME}",
                     disk_size: "#{DISK_SIZE}",
+                    domain: "#{DOMAIN}",
+                    gatekeeper_chart_version: "#{GATEKEEPER_CHART_VERSION}",
+                    gatekeeper_deploy: "#{GATEKEEPER_DEPLOY}",
+                    ingress_chart_version: "#{INGRESS_CHART_VERSION}",
+                    ingress_deploy: "#{INGRESS_DEPLOY}",
                     kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",
                     longhorn_deploy: "#{LONGHORN_DEPLOY}",
                     monitoring_deploy: "#{MONITORING_DEPLOY}",
@@ -104,12 +127,20 @@ Vagrant.configure("2") do |config|
                 end
             worker.vm.provision "ansible" do |ansible|
                 ansible.playbook = "../../#{BOOTSTRAP_PATH}/#{WORKER_PREFIX}.yml"
+                ansible.ask_become_pass = true
                 ansible.extra_vars = {
+                    cert_manager_chart_version: "#{CERT_MANAGER_CHART_VERSION}",
+                    cert_manager_deploy: "#{CERT_MANAGER_DEPLOY}",
                     disk_device: "#{DISK_DEVICE}",
                     disk_directory: "#{LONGHORN_DIRECTORY}",
                     disk_fs: "#{DISK_FS}",
                     disk_name: "#{DISK_NAME}",
                     disk_size: "#{DISK_SIZE}",
+                    domain: "#{DOMAIN}",
+                    gatekeeper_chart_version: "#{GATEKEEPER_CHART_VERSION}",
+                    gatekeeper_deploy: "#{GATEKEEPER_DEPLOY}",
+                    ingress_chart_version: "#{INGRESS_CHART_VERSION}",
+                    ingress_deploy: "#{INGRESS_DEPLOY}",
                     longhorn_deploy: "#{LONGHORN_DEPLOY}",
                     monitoring_deploy: "#{MONITORING_DEPLOY}",
                     kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",

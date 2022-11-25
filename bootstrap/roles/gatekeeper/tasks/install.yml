@@ -1,0 +1,11 @@
+---
+- name: Install gatekeeper
+  kubernetes.core.helm:
+    name: "gatekeeper"
+    chart_ref: "gatekeeper"
+    chart_version: "{{ gatekeeper_chart_version }}"
+    chart_repo_url: "https://open-policy-agent.github.io/gatekeeper/charts"
+    release_namespace: gatekeeper
+    create_namespace: true
+  become: false
+  delegate_to: "localhost"

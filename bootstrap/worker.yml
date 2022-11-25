@@ -3,36 +3,16 @@
   become: true
   gather_facts: yes
   tasks:
-  - name: Install CRI
+  - name: Install master and worker packages
     include_role:
       name: master_and_workers
-      tasks_from: install_cri
+      tasks_from: setup
   
-  - name: Install Kube Packages
-    include_role:
-      name: master_and_workers
-      tasks_from: install_kube_packages
-
   - name: Worker Join
     include_role:
       name: worker
       tasks_from: worker_join
 
-  - name: Install glusterfs-packages
-    include_role:
-      name: gluster
-      tasks_from: install_gluster-packages
-    when: gluster_deploy == "yes"
-
-  - name: Install Longhorn
-    block:
-    - name: Add LVM Volumes
-      include_role:
-        name: lvm
-        tasks_from: add_lvm_volumes
-
-    - name: Install Longhorn
-      include_role:
-        name: longhorn
-        tasks_from: install
-    when: longhorn_deploy == "yes"
+- name: Install APPs
+  ansible.builtin.import_playbook: apps.yml
+  when: node_numbers == node_count

@@ -1,0 +1,15 @@
+---
+- name: Set domain name
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regex: "^{{ node_ip }}"
+    line: "{{ node_ip }} {{ domain }}"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  delegate_to: localhost
+  when: >
+    worker_nodes == 0 and
+    node_numbers == node_count or
+    node_numbers == node_count

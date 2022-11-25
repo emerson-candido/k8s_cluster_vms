@@ -8,9 +8,13 @@
     release_namespace: monitoring
     create_namespace: true
     values:
-      service:
-        type: NodePort
-        nodePort: 30011
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/rewrite-target: /$2
+        hosts: ["k8s"]
+        path: /pushgateway
+        pathType: Prefix
   become: false
   delegate_to: "localhost"
-  when: node_numbers == node_count

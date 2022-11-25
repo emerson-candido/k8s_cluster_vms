@@ -1,0 +1,25 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Start and enable nginx service
+  ansible.builtin.service: 
+    name: containerd
+    state: started
+    enabled: true
+
+- name: Copy Proxy config file
+  ansible.builtin.copy:
+    src: files/proxy/proxy.conf
+    dest: /etc/nginx/sites-available/default
+  register: proxy_config
+
+- name: Restart nginx service
+  ansible.builtin.service: 
+    name: containerd
+    state: restarted
+    enabled: true
+  when: proxy_config.changed

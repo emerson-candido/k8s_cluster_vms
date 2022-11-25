@@ -1,0 +1,20 @@
+---
+- name: Install CRI
+  include_role:
+    name: master_and_workers
+    tasks_from: install_cri
+  
+- name: Install Kube Packages
+  include_role:
+    name: master_and_workers
+    tasks_from: install_kube_packages
+
+- name: Install Proxy
+  include_role:
+    name: master_and_workers
+    tasks_from: install_proxy
+
+- name: Set domain
+  include_role:
+    name: master_and_workers
+    tasks_from: set_domain

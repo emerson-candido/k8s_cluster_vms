@@ -8,54 +8,37 @@
       name: master
       tasks_from: install_prereqs
   
-  - name: Install CRI
+  - name: Install master and worker packages
     include_role:
       name: master_and_workers
-      tasks_from: install_cri
+      tasks_from: setup
   
-  - name: Install Kube Packages
-    include_role:
-      name: master_and_workers
-      tasks_from: install_kube_packages
+  #- name: Install CRI
+  #  include_role:
+  #    name: master_and_workers
+  #    tasks_from: install_cri
+  
+  #- name: Install Kube Packages
+  #  include_role:
+  #    name: master_and_workers
+  #    tasks_from: install_kube_packages
   
   - name: Master Join
     include_role:
       name: master
       tasks_from: master_join
-
-  - name: No Worker nodes tasks
-    block:  
-    - name: Allow master nodes to run pods
-      include_role:
-        name: master
-        tasks_from: master_runpods
-    - name: Install Longhorn
-      block:
-      - name: Add LVM Volumes
-        include_role:
-          name: lvm
-          tasks_from: add_lvm_volumes
-
-      - name: Install Longhorn
-        include_role:
-          name: longhorn
-          tasks_from: install
-      when: longhorn_deploy == "yes"
-      
-    - name: Install monitoring stack
-      block:
-      - name: Install kube-prometheus-stack
-        include_role:
-          name: monitoring
-          tasks_from: kube-prometheus-stack
-      
-      - name: Install kube-prometheus-stack
-        include_role:
-          name: monitoring
-          tasks_from: kube-prometheus-stack
-      - name: Install pushgateway
-        include_role:
-          name: monitoring
-          tasks_from: pushgateway
-      when: monitoring_deploy == "yes"
+  
+  - name: Allow master nodes to run pods
+    include_role:
+      name: master
+      tasks_from: master_runpods
     when: worker_nodes == "0"
+
+  - name: Install Proxy
+    include_role:
+      name: master_and_workers
+      tasks_from: install_proxy
+
+- name: Install APPs
+  ansible.builtin.import_playbook: apps.yml
+  when: worker_nodes == "0"
