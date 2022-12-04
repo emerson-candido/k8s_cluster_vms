@@ -1,0 +1,45 @@
+---
+- name: Install APPs
+  block:
+  - name: Install ingress
+    include_role:
+      name: apps
+      tasks_from: ingress
+    when: ingress_deploy == "yes"
+  
+  - name: Install cert_manager
+    include_role:
+      name: apps
+      tasks_from: cert_manager
+    when: cert_manager_deploy == "yes"
+
+  - name: Install Longhorn
+    include_role:
+      name: apps
+      tasks_from: longhorn
+    when: longhorn_deploy == "yes"
+  
+  - name: Monitoring tools
+    block:
+    - name: Install kube-prometheus-stack
+      include_role:
+        name: apps
+        tasks_from: kube-prometheus-stack
+
+    - name: Install pushgateway
+      include_role:
+        name: apps
+        tasks_from: pushgateway
+    when: monitoring_deploy == "yes"
+    
+  - name: Install gatekeeper
+    include_role:
+      name: apps
+      tasks_from: gatekeeper
+    when: gatekeeper_deploy == "yes"
+  
+  - name: Install falco
+    include_role:
+      name: apps
+      tasks_from: falco
+    when: falco_deploy == "yes"

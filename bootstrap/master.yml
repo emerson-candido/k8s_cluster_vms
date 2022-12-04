@@ -13,32 +13,20 @@
       name: master_and_workers
       tasks_from: setup
   
-  #- name: Install CRI
-  #  include_role:
-  #    name: master_and_workers
-  #    tasks_from: install_cri
-  
-  #- name: Install Kube Packages
-  #  include_role:
-  #    name: master_and_workers
-  #    tasks_from: install_kube_packages
-  
   - name: Master Join
     include_role:
       name: master
       tasks_from: master_join
   
-  - name: Allow master nodes to run pods
-    include_role:
-      name: master
-      tasks_from: master_runpods
+  - name: No worker nodes
+    block:
+    - name: Allow master nodes to run pods
+      include_role:
+        name: master
+        tasks_from: master_runpods
+
+    - name: Install APPs
+      include_role:
+        name: apps
+        tasks_from: apps
     when: worker_nodes == "0"
-
-  - name: Install Proxy
-    include_role:
-      name: master_and_workers
-      tasks_from: install_proxy
-
-- name: Install APPs
-  ansible.builtin.import_playbook: apps.yml
-  when: worker_nodes == "0"

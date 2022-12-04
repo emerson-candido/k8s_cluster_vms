@@ -1,0 +1,11 @@
+---
+- name: Install Falco
+  kubernetes.core.helm:
+    name: "falco"
+    chart_ref: "falco"
+    chart_version: "{{ falco_chart_version }}"
+    chart_repo_url: "https://falcosecurity.github.io/charts"
+    release_namespace: falco
+    create_namespace: true
+  become: false
+  delegate_to: "localhost"

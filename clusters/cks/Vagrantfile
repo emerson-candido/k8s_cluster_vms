@@ -42,6 +42,10 @@ WORKER_RANGE  = 20
 CERT_MANAGER_DEPLOY        = "yes"
 CERT_MANAGER_CHART_VERSION = "v1.10.0"
 
+# Falco variables
+FALCO_DEPLOY        = "yes"
+FALCO_CHART_VERSION = "2.4.3"
+
 # Gatekeeper variables
 GATEKEEPER_DEPLOY        = "yes"
 GATEKEEPER_CHART_VERSION = "3.10.0"
@@ -52,6 +56,7 @@ INGRESS_CHART_VERSION = "4.4.0"
 
 # Longhorn variables
 LONGHORN_DEPLOY    = "yes"
+LONGHORN_CHART_VERSION = "1.3.2"
 LONGHORN_DIRECTORY = "/var/lib/longhorn"
 
 # Monitoring variables
@@ -91,12 +96,15 @@ Vagrant.configure("2") do |config|
                     disk_name: "#{DISK_NAME}",
                     disk_size: "#{DISK_SIZE}",
                     domain: "#{DOMAIN}",
+                    falco_chart_version: "#{FALCO_CHART_VERSION}",
+                    falco_deploy: "#{FALCO_DEPLOY}",
                     gatekeeper_chart_version: "#{GATEKEEPER_CHART_VERSION}",
                     gatekeeper_deploy: "#{GATEKEEPER_DEPLOY}",
                     ingress_chart_version: "#{INGRESS_CHART_VERSION}",
                     ingress_deploy: "#{INGRESS_DEPLOY}",
                     kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",
                     longhorn_deploy: "#{LONGHORN_DEPLOY}",
+                    longhorn_chart_version: "#{LONGHORN_CHART_VERSION}",
                     monitoring_deploy: "#{MONITORING_DEPLOY}",
                     node_count: "#{i}",
                     node_ip: "#{SUBNET}.#{i + MASTER_RANGE}",
@@ -137,11 +145,14 @@ Vagrant.configure("2") do |config|
                     disk_name: "#{DISK_NAME}",
                     disk_size: "#{DISK_SIZE}",
                     domain: "#{DOMAIN}",
+                    falco_chart_version: "#{FALCO_CHART_VERSION}",
+                    falco_deploy: "#{FALCO_DEPLOY}",
                     gatekeeper_chart_version: "#{GATEKEEPER_CHART_VERSION}",
                     gatekeeper_deploy: "#{GATEKEEPER_DEPLOY}",
                     ingress_chart_version: "#{INGRESS_CHART_VERSION}",
                     ingress_deploy: "#{INGRESS_DEPLOY}",
                     longhorn_deploy: "#{LONGHORN_DEPLOY}",
+                    longhorn_chart_version: "#{LONGHORN_CHART_VERSION}",
                     monitoring_deploy: "#{MONITORING_DEPLOY}",
                     kube_prometheus_stack_chart_version: "#{KUBE_PROMETHEUS_STACK_CHART_VERSION}",
                     node_count: "#{i}",
@@ -153,6 +164,7 @@ Vagrant.configure("2") do |config|
                     pushgateway_chart_version: "#{PUSHGATEWAY_CHART_VERSION}",
                     version_kube: "#{VERSION_KUBE}",
                     version_cri: "#{VERSION_CRI}",
+                    worker_nodes: "#{WORKER_NODES}",
                 }
             end
         end
